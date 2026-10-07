@@ -4,3 +4,8 @@
 .env.*
 !.env.example
 *.tsbuildinfo
+
+# Dependencias e build: gerados por npm install / nest build, nao versionar
+node_modules/
+dist/
+coverage/
