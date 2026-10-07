@@ -1,0 +1,6 @@
+
+# Variaveis de ambiente
+.env
+.env.*
+!.env.example
+*.tsbuildinfo
