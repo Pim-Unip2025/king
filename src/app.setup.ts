@@ -13,5 +13,20 @@ export function configurarApp(app: INestApplication) {
       validationError: { target: false, value: false },
     }),
   );
+
+  // CORS: só as origens listadas em CORS_ORIGINS (separadas por vírgula)
+  // podem chamar a API pelo navegador. Nunca '*'. Mobile e Desktop não são
+  // navegador e não passam por CORS, então não precisam estar na lista.
+  const origens = (process.env.CORS_ORIGINS ?? '')
+    .split(',')
+    .map((origem) => origem.trim().replace(/\/$/, ''))
+    .filter(Boolean);
+  app.enableCors({
+    origin: origens.length > 0 ? origens : false,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    maxAge: 600,
+  });
+
   return app;
 }
