@@ -4,14 +4,14 @@
 //   DATABASE_URL=postgresql://... JWT_SECRET=qualquer npm run test:e2e
 //
 // Os usuários criados aqui têm o prefixo "e2e_" e são apagados no final.
+import { jest } from '@jest/globals';
 import { INestApplication } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
-import { App } from 'supertest/types';
-import { AppModule } from '../src/app.module';
-import { configurarApp } from '../src/app.setup';
-import { DatabaseService } from '../src/database/database.service';
+import { AppModule } from '../src/app.module.js';
+import { configurarApp } from '../src/app.setup.js';
+import { DatabaseService } from '../src/database/database.service.js';
 
 process.env.JWT_SECRET ??= 'segredo-so-para-teste-e2e';
 process.env.JWT_EXPIRES_IN = '3600';
@@ -31,7 +31,7 @@ const NOVA_SENHA = 'Trocada@e2e2';
 const SENHAS = [SEED_ADMIN.senha, SEED_PROF.senha, ALUNO.senha, NOVA_SENHA];
 
 describe('Auth (e2e)', () => {
-  let app: INestApplication<App>;
+  let app: INestApplication;
   let db: DatabaseService;
   let jwt: JwtService;
   const saida: string[] = [];
@@ -39,7 +39,7 @@ describe('Auth (e2e)', () => {
 
   beforeAll(async () => {
     const modulo = await Test.createTestingModule({ imports: [AppModule] }).compile();
-    app = configurarApp(modulo.createNestApplication()) as INestApplication<App>;
+    app = configurarApp(modulo.createNestApplication()) as INestApplication;
     await app.init();
     db = app.get(DatabaseService);
     jwt = app.get(JwtService);

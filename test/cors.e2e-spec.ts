@@ -2,19 +2,18 @@
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
-import { App } from 'supertest/types';
-import { AppModule } from '../src/app.module';
-import { configurarApp } from '../src/app.setup';
+import { AppModule } from '../src/app.module.js';
+import { configurarApp } from '../src/app.setup.js';
 
 process.env.JWT_SECRET ??= 'segredo-so-para-teste-e2e';
 process.env.CORS_ORIGINS = 'https://tronus.vercel.app, http://localhost:5500/';
 
 describe('CORS (e2e)', () => {
-  let app: INestApplication<App>;
+  let app: INestApplication;
 
   beforeAll(async () => {
     const modulo = await Test.createTestingModule({ imports: [AppModule] }).compile();
-    app = configurarApp(modulo.createNestApplication()) as INestApplication<App>;
+    app = configurarApp(modulo.createNestApplication()) as INestApplication;
     await app.init();
   });
 

@@ -1,6 +1,6 @@
 import { Transform } from 'class-transformer';
 import { IsNotEmpty, IsString, Matches } from 'class-validator';
-import { SENHA_FORTE_MENSAGEM, SENHA_FORTE_REGEX } from '../auth.constants';
+import { SENHA_FORTE_MENSAGEM, SENHA_FORTE_REGEX } from '../auth.constants.js';
 
 export class ResetPasswordDto {
   @IsString({ message: 'resetToken ausente.' })

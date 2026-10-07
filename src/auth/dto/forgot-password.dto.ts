@@ -1,6 +1,6 @@
 import { Transform } from 'class-transformer';
 import { IsString, Matches } from 'class-validator';
-import { CELULAR_MENSAGEM, somenteDigitos } from '../auth.constants';
+import { CELULAR_MENSAGEM, somenteDigitos } from '../auth.constants.js';
 
 export class ForgotPasswordDto {
   @Transform(({ value }) => (typeof value === 'string' ? somenteDigitos(value) : value))
