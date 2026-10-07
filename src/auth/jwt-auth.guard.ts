@@ -1,7 +1,7 @@
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import type { Request } from 'express';
-import { AccessTokenPayload, RequestAutenticada } from './auth.types';
+import { AccessTokenPayload, RequestAutenticada } from './auth.types.js';
 
 // Só autentica: confere se o Bearer token é válido e não expirou, e pendura
 // { id, papel } em request.usuario. Restringir por papel é a PIM-16.

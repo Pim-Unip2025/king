@@ -10,13 +10,13 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { createHmac, randomInt, timingSafeEqual } from 'node:crypto';
-import { DatabaseService } from '../database/database.service';
-import { BCRYPT_COST, BCRYPT_MAX_BYTES, RESET_TTL_SEGUNDOS } from './auth.constants';
-import { ForgotPasswordDto } from './dto/forgot-password.dto';
-import { LoginDto } from './dto/login.dto';
-import { RegisterDto } from './dto/register.dto';
-import { ResetPasswordDto } from './dto/reset-password.dto';
-import { AccessTokenPayload, Papel, UsuarioPublico } from './auth.types';
+import { DatabaseService } from '../database/database.service.js';
+import { BCRYPT_COST, BCRYPT_MAX_BYTES, RESET_TTL_SEGUNDOS } from './auth.constants.js';
+import { ForgotPasswordDto } from './dto/forgot-password.dto.js';
+import { LoginDto } from './dto/login.dto.js';
+import { RegisterDto } from './dto/register.dto.js';
+import { ResetPasswordDto } from './dto/reset-password.dto.js';
+import { AccessTokenPayload, Papel, UsuarioPublico } from './auth.types.js';
 
 // Colunas que podem sair da API. senha_hash NUNCA entra nesta lista.
 const COLUNAS_PUBLICAS = 'id, nome, email, papel, professor_reino_id';

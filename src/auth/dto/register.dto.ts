@@ -1,6 +1,6 @@
 import { Transform } from 'class-transformer';
 import { IsEmail, IsString, Length, Matches, MaxLength } from 'class-validator';
-import { CELULAR_MENSAGEM, SENHA_FORTE_MENSAGEM, SENHA_FORTE_REGEX, somenteDigitos } from '../auth.constants';
+import { CELULAR_MENSAGEM, SENHA_FORTE_MENSAGEM, SENHA_FORTE_REGEX, somenteDigitos } from '../auth.constants.js';
 
 const trim = ({ value }: { value: unknown }) => (typeof value === 'string' ? value.trim() : value);
 
