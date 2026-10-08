@@ -29,11 +29,18 @@ export class AcessoService {
    * rota sem essa checagem).
    */
   async garantirReino(usuario: UsuarioAutenticado, reinoId: number): Promise<void> {
-    if (usuario.papel === 'admin') return;
-    if (usuario.papel !== 'professor') throw new ForbiddenException(SEM_ACESSO_REINO);
+    if (!(await this.podeGerenciarReino(usuario, reinoId))) throw new ForbiddenException(SEM_ACESSO_REINO);
+  }
 
-    const reinoDoProfessor = await this.reinoDoProfessor(usuario.id);
-    if (reinoDoProfessor !== reinoId) throw new ForbiddenException(SEM_ACESSO_REINO);
+  /**
+   * Mesma regra do garantirReino, sem lançar exceção. Para rota que todo
+   * mundo pode chamar, mas que devolve mais dado para quem gerencia o Reino
+   * (ex.: o campo `correta` das alternativas).
+   */
+  async podeGerenciarReino(usuario: UsuarioAutenticado, reinoId: number): Promise<boolean> {
+    if (usuario.papel === 'admin') return true;
+    if (usuario.papel !== 'professor') return false;
+    return (await this.reinoDoProfessor(usuario.id)) === reinoId;
   }
 
   /** Para criar questão numa fase: a fase precisa ser do Reino do professor. */
