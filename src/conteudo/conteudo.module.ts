@@ -8,5 +8,6 @@ import { ReinosController } from './reinos.controller.js';
   imports: [AuthModule],
   controllers: [ReinosController, FasesController],
   providers: [ConteudoService],
+  exports: [ConteudoService],
 })
 export class ConteudoModule {}
