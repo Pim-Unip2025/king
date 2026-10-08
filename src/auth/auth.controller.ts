@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -12,13 +12,13 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { AuthService } from './auth.service.js';
-import type { RequestAutenticada } from './auth.types.js';
+import { Public, UsuarioAtual } from './auth.decorators.js';
+import type { UsuarioAutenticado } from './auth.types.js';
 import { ForgotPasswordDto } from './dto/forgot-password.dto.js';
 import { LoginDto } from './dto/login.dto.js';
 import { RegisterDto } from './dto/register.dto.js';
 import { ResetPasswordDto } from './dto/reset-password.dto.js';
 import { ErroDto, ForgotPasswordRespostaDto, MensagemDto, SessaoDto, UsuarioPublicoDto } from './dto/respostas.dto.js';
-import { JwtAuthGuard } from './jwt-auth.guard.js';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -26,6 +26,7 @@ export class AuthController {
   constructor(private readonly auth: AuthService) {}
 
   @Post('register')
+  @Public()
   @ApiOperation({ summary: 'Cadastra um aluno', description: 'Já devolve a sessão (token), como o login.' })
   @ApiCreatedResponse({ type: SessaoDto })
   @ApiBadRequestResponse({ type: ErroDto, description: 'E-mail, celular ou senha fora do formato' })
@@ -35,6 +36,7 @@ export class AuthController {
   }
 
   @Post('login')
+  @Public()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Login por nome de usuário ou e-mail' })
   @ApiOkResponse({ type: SessaoDto })
@@ -44,6 +46,7 @@ export class AuthController {
   }
 
   @Post('forgot-password')
+  @Public()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Esqueci a senha, etapa 1: gera o código',
@@ -57,6 +60,7 @@ export class AuthController {
   }
 
   @Post('reset-password')
+  @Public()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Esqueci a senha, etapa 2: troca a senha', description: 'O reset_token vale uma vez só.' })
   @ApiOkResponse({ type: MensagemDto })
@@ -66,12 +70,11 @@ export class AuthController {
   }
 
   @Get('me')
-  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Dados do usuário logado' })
   @ApiOkResponse({ type: UsuarioPublicoDto })
   @ApiUnauthorizedResponse({ type: ErroDto, description: 'Token ausente, inválido ou expirado' })
-  me(@Req() request: RequestAutenticada) {
-    return this.auth.me(request.usuario.id);
+  me(@UsuarioAtual() usuario: UsuarioAutenticado) {
+    return this.auth.me(usuario.id);
   }
 }
