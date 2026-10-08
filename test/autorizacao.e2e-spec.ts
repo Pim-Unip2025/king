@@ -304,7 +304,9 @@ describe('Autorização por papel (e2e)', () => {
       const outro = await comToken('get', `/teste-autz/progresso/${personagemB}`, 'alunoA');
       const inexistente = await comToken('get', '/teste-autz/progresso/999999', 'alunoA');
       expect(inexistente.status).toBe(403);
-      expect(inexistente.body).toEqual(outro.body);
+      // Mesmo status e mesma mensagem; só path e timestamp mudam.
+      const semRota = ({ path: _p, timestamp: _t, ...resto }: Record<string, unknown>) => resto;
+      expect(semRota(inexistente.body)).toEqual(semRota(outro.body));
     });
 
     it('professor e admin leem progresso de qualquer aluno, mas não escrevem', async () => {

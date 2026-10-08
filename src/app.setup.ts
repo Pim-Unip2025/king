@@ -1,4 +1,5 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { ErrosFilter } from './comum/erros.filter.js';
 
 // Configuração global compartilhada entre main.ts e os testes e2e, para o
 // teste rodar a API exatamente como ela sobe em produção.
@@ -13,6 +14,10 @@ export function configurarApp(app: INestApplication) {
       validationError: { target: false, value: false },
     }),
   );
+
+  // Todo erro sai no formato { statusCode, message, error, timestamp, path },
+  // sem stack nem SQL. Erro do Postgres vira 400/409 quando é culpa do dado.
+  app.useGlobalFilters(new ErrosFilter());
 
   // CORS: só as origens listadas em CORS_ORIGINS (separadas por vírgula)
   // podem chamar a API pelo navegador. Nunca '*'. Mobile e Desktop não são

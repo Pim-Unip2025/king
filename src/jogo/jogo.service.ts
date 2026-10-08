@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { AcessoService } from '../auth/acesso.service.js';
 import { DatabaseService } from '../database/database.service.js';
 import { CriarPersonagemDto } from './dto/criar-personagem.dto.js';
@@ -25,6 +25,8 @@ export interface Personagem {
 // progresso de outro.
 @Injectable()
 export class JogoService {
+  private readonly logger = new Logger('Procedures');
+
   constructor(
     private readonly db: DatabaseService,
     private readonly acesso: AcessoService,
@@ -152,6 +154,11 @@ export class JogoService {
       ]);
       return { personagem: pers[0], melhor: p[0].estrelas };
     });
+
+    this.logger.log(
+      `sp_registrar_progresso personagem=${personagemId} fase=${faseId} estrelas=${estrelas} ` +
+        `-> melhor=${melhor} total=${personagem.total_estrelas} titulo=${personagem.titulo_atual}`,
+    );
 
     return {
       fase_id: faseId,

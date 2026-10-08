@@ -3,6 +3,7 @@ import {
   ConflictException,
   ForbiddenException,
   Injectable,
+  Logger,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -30,6 +31,10 @@ const HASH_FICTICIO = bcrypt.hashSync('usuario-inexistente', BCRYPT_COST);
 
 @Injectable()
 export class AuthService {
+  // Log de autenticação: só id, papel e o motivo. NUNCA senha, hash, token,
+  // código de redefinição ou o identificador digitado no login (gente digita
+  // a senha no campo de usuário sem querer).
+  private readonly logger = new Logger('Auth');
   private readonly expiresIn: number;
   private readonly jwtSecret: string;
   private readonly simularSms: boolean;
@@ -80,6 +85,7 @@ export class AuthService {
         [dto.nome, dto.email, dto.celular, senhaHash],
       );
       usuario = rows[0];
+      this.logger.log(`Cadastro: usuario=${usuario.id} papel=aluno`);
     } catch (erro) {
       // Duas requisições simultâneas passam pela checagem acima; o UNIQUE pega.
       if ((erro as { code?: string }).code === '23505') {
@@ -107,10 +113,12 @@ export class AuthService {
     const senhaConfere = await bcrypt.compare(dto.senha, encontrado?.senha_hash ?? HASH_FICTICIO);
     if (!encontrado || !senhaConfere) {
       // Mesma mensagem para "não existe" e "senha errada", de propósito.
+      this.logger.warn(`Login recusado: ${encontrado ? `usuario=${encontrado.id} senha incorreta` : 'usuário inexistente'}`);
       throw new UnauthorizedException('Usuário ou senha incorretos.');
     }
 
     const { senha_hash: _descartado, ...usuario } = encontrado;
+    this.logger.log(`Login: usuario=${usuario.id} papel=${usuario.papel}`);
     return this.sessao(usuario);
   }
 
@@ -153,6 +161,7 @@ export class AuthService {
     // (SIMULAR_SMS). Liberar isso para admin/professor deixaria qualquer um
     // assumir essas contas sabendo o celular — e o do admin é 00000000000.
     if (usuario.papel !== 'aluno') {
+      this.logger.warn(`Redefinição de senha recusada: usuario=${usuario.id} papel=${usuario.papel}`);
       throw new ForbiddenException('A senha de professor e administrador é redefinida pelo administrador.');
     }
 
@@ -162,6 +171,7 @@ export class AuthService {
       { secret: this.segredoReset(usuario.senha_hash), expiresIn: RESET_TTL_SEGUNDOS },
     );
 
+    this.logger.log(`Código de redefinição gerado: usuario=${usuario.id}`);
     return {
       reset_token: resetToken,
       expires_in: RESET_TTL_SEGUNDOS,
@@ -199,11 +209,13 @@ export class AuthService {
     const esperado = Buffer.from(payload.ch ?? '', 'hex');
     const recebido = Buffer.from(this.hmacCodigo(usuarioId, dto.codigo), 'hex');
     if (esperado.length !== recebido.length || !timingSafeEqual(esperado, recebido)) {
+      this.logger.warn(`Redefinição de senha recusada: usuario=${usuarioId} código incorreto`);
       throw invalido;
     }
 
     const novoHash = await bcrypt.hash(dto.novaSenha, BCRYPT_COST);
     await this.db.query('UPDATE usuarios SET senha_hash = $1 WHERE id = $2', [novoHash, usuarioId]);
+    this.logger.log(`Senha redefinida: usuario=${usuarioId}`);
 
     return { mensagem: 'Senha redefinida com sucesso.' };
   }

@@ -67,4 +67,10 @@ export class ErroDto {
 
   @ApiProperty({ example: 'Bad Request' })
   error: string;
+
+  @ApiProperty({ description: 'Momento do erro, ISO 8601 (UTC)', example: '2026-10-08T18:30:00.000Z' })
+  timestamp: string;
+
+  @ApiProperty({ description: 'Rota chamada, sem a query string', example: '/auth/register' })
+  path: string;
 }
