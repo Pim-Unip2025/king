@@ -31,7 +31,17 @@ describe('Docs (e2e)', () => {
     const spec = res.body;
 
     expect(Object.keys(spec.paths).sort()).toEqual(
-      ['/auth/forgot-password', '/auth/login', '/auth/me', '/auth/register', '/auth/reset-password', '/health'].sort(),
+      [
+        '/auth/forgot-password',
+        '/auth/login',
+        '/auth/me',
+        '/auth/register',
+        '/auth/reset-password',
+        '/fases/{id}/questoes',
+        '/health',
+        '/reinos',
+        '/reinos/{id}/fases',
+      ].sort(),
     );
     expect(spec.components.securitySchemes.bearer).toBeDefined();
     expect(spec.paths['/auth/me'].get.security).toEqual([{ bearer: [] }]);
@@ -41,5 +51,9 @@ describe('Docs (e2e)', () => {
     expect(spec.components.schemas.SessaoDto.properties.usuario).toBeDefined();
     expect(spec.paths['/auth/login'].post.responses['200']).toBeDefined();
     expect(spec.paths['/auth/login'].post.responses['401']).toBeDefined();
+
+    // Rotas de conteúdo exigem token e documentam o `correta` como opcional
+    expect(spec.paths['/reinos'].get.security).toEqual([{ bearer: [] }]);
+    expect(spec.components.schemas.AlternativaDto.required).not.toContain('correta');
   });
 });
